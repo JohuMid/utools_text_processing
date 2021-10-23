@@ -1,0 +1,26 @@
+{
+  "pluginName": "文本处理",
+  "description": "文本处理",
+  "version": "1.0.0",
+  "author": "johu",
+  "development": {
+    "main": "http://localhost:8080/index.html"
+  },
+  "main": "dist/index.html",
+  "logo": "logo.png",
+  "preload": "preload.js",
+  "features": [
+    {
+      "code": "processing",
+      "explain": "文本处理",
+      "cmds": [
+        "文本处理",
+        "wb",
+        {
+          "type": "regex",
+          "label": "文本处理"
+        }
+      ]
+    }
+  ]
+}
