@@ -1,7 +1,6 @@
 .DS_Store
 node_modules
 /dist
-/utools/dist
 
 
 # local env files

@@ -27,24 +27,10 @@ export default {
         "explain": row.name,
         "cmds": [
           {
-            "type": "over",
-            "label": row.name,
-            "minLength": 1
-          }
-        ]
-      })
-    },
-    setRegexFunc(row){
-      // eslint-disable-next-line no-undef
-      utools.setFeature({
-        "code": row.id,
-        "explain": row.name,
-        "cmds": [
-          {
             "type": "regex",
             "label": row.name,
-            "match": row.matchMode,
-            "minLength": 1
+            "match": "/.*?/",
+            "minNum": 1
           }
         ]
       })
@@ -87,10 +73,7 @@ export default {
     diffOs(){
       // eslint-disable-next-line no-undef
       return !!utools.isMacOs();
-    },
-    redirectTo(label, payload){
-      // eslint-disable-next-line no-undef
-      utools.redirect(label, payload)
     }
+
   }
 }
