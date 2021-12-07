@@ -3,9 +3,6 @@
   "description": "文本处理",
   "version": "1.0.0",
   "author": "johu",
-  "development": {
-    "main": "http://localhost:8080/index.html"
-  },
   "main": "dist/index.html",
   "logo": "logo.png",
   "preload": "preload.js",

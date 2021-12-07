@@ -9,7 +9,7 @@
             >
             </el-table-column>
             <el-table-column
-                    label="加入超级面板"
+                    label="超级面板"
             >
                 <template slot-scope="scope">
                     <el-switch
@@ -33,6 +33,14 @@
                                 :value="item.value">
                         </el-option>
                     </el-select>
+                </template>
+            </el-table-column>
+            <el-table-column
+                    label="匹配模式"
+            >
+                <template slot-scope="scope">
+                    <span v-if="scope.row.matchMode === 'over' || !scope.row.matchMode">任意匹配</span>
+                    <span v-else>{{scope.row.matchMode}}</span>
                 </template>
             </el-table-column>
             <el-table-column
@@ -92,7 +100,7 @@ import Mixin from '../assets/mixin'
       // eslint-disable-next-line no-undef
       utools.onPluginEnter(({code, type, payload}) => {
         console.log('用户进入插件', code, type, payload)
-        if (type === 'regex'){
+        if (type === 'over' || type === 'regex'){
           let processFlow = this.getDb('process_flow')
           this.$router.push({
             name: 'FlowEdit',
@@ -109,7 +117,7 @@ import Mixin from '../assets/mixin'
         if (!this.getDb('process_flow')){
           this.putDb({
             _id: "process_flow",
-            data: [{id:'23435fdgs23455342',name:'测试流程',main:['replaceSpace','allUpper'],isAddPanel:false,operateMode:'0'}]
+            data: [{id:'23435fdgs23455342',name:'测试流程',main:['replaceSpace','allUpper'],isAddPanel:false,operateMode:'0',matchMode:'over'}]
           })
         } else {
           this.fixData()
@@ -127,7 +135,12 @@ import Mixin from '../assets/mixin'
       },
       changePanelActive(flag,row){
         if (flag){
-          this.setFunc(row)
+          console.log(row);
+          if (row.matchMode === "over" || !row.matchMode){
+            this.setFunc(row)
+          } else {
+            this.setRegexFunc(row)
+          }
         } else {
           this.removeFunc(row)
         }
