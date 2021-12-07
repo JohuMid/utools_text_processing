@@ -91,27 +91,6 @@
                             >
                             </el-input>
                         </el-form-item>
-                        <el-form-item label="匹配模式">
-                            <el-tooltip effect="light" placement="top">
-                                <div slot="content">匹配模式用于限制流程的触发条件，符合条件的文本才会展示此流程。<br/>注意: 正则表达式存如果在斜杠 "\" 需要多加一个，"\\"。<br/>注意：“任意匹配的正则” 会被 uTools 忽视，如果要任意匹配直接选择任意匹配即可。<br/>PS：正则匹配可以去 <span style="font-weight: bold">正则编辑器</span> 插件调试好正则表达式后填入。</div>
-                                <i class="el-icon-info" style="position: absolute;left: 60px;top: -37px;z-index: 9"></i>
-                            </el-tooltip>
-                            <el-select v-model="matchingPattern" placeholder="请选择匹配模式" size="mini" style="width: 100%;">
-                                <el-option
-                                        v-for="item in matchingOptions"
-                                        :key="item.value"
-                                        :label="item.label"
-                                        :value="item.value">
-                                </el-option>
-                            </el-select>
-                            <el-input
-                                    v-show="matchingPattern === 'regex'"
-                                    size="mini"
-                                    placeholder="输入正则表达式"
-                                    v-model="regexStr"
-                            >
-                            </el-input>
-                        </el-form-item>
                     </el-form>
                     <span style="color: #F56C6C">{{errMsg}}</span>
                 </div>
@@ -177,12 +156,6 @@
         processFlowTime: [],
         originalStr:'johu    test    plugin   12345',
         outputStr:'',
-        regexStr:'//',
-        matchingPattern: 'over',
-        matchingOptions:[
-          {label:'任意匹配', value: 'over'},
-          {label:'正则匹配', value: 'regex'}
-        ],
         codeDialogVisible: false,
         cmOptions:{
           value:'',
@@ -246,12 +219,6 @@
       if (this.$route.query.name){
           this.processFlowName = this.$route.query.name
           this.processFlowId = this.$route.query.id
-          if (this.$route.query.matchMode === 'over' || !this.$route.query.matchMode) {
-            this.matchingPattern = 'over'
-          } else{
-            this.matchingPattern = 'regex'
-            this.regexStr = this.$route.query.matchMode
-          }
           this.isEditFlow = true
           let mainArr = this.$route.query.main
           let mainLen = mainArr.length
@@ -356,11 +323,6 @@
             message: '流程处理错误，查看错误信息并修改',
             type: 'warning'
           })
-        } else if (this.matchingPattern === 'regex' && (this.regexStr.length === 0 || this.regexStr === 'over')){
-          this.$message({
-            message: '填写正确的正则表达式',
-            type: 'warning'
-          })
         } else {
           let processNodeArr = []
           this.processFlowTime.map((value)=>{
@@ -368,14 +330,12 @@
           })
           let newProcessFlow = this.getDb('process_flow')
           if (flag){
-            // 添加流程
             newProcessFlow.push({
               id: uuidv4(),
               name: this.processFlowName,
               main: processNodeArr,
               isAddPanel: false,
-              operateMode: '0',
-              matchMode: this.matchingPattern === 'over' ? 'over' : this.regexStr
+              operateMode: '0'
             })
             this.putRevDb("process_flow",newProcessFlow)
             this.$message({
@@ -383,32 +343,21 @@
               type: 'success'
             })
           } else {
-            // 编辑流程
             newProcessFlow = newProcessFlow.filter(item => item.id!==this.processFlowId)
             newProcessFlow.push({
               id: this.$route.query.id,
               name: this.processFlowName,
               main: processNodeArr,
               isAddPanel: this.$route.query.isAddPanel,
-              operateMode: this.$route.query.operateMode,
-              matchMode: this.matchingPattern === 'over' ? 'over' : this.regexStr
+              operateMode: this.$route.query.operateMode
             })
             this.putRevDb("process_flow",newProcessFlow)
             if (this.$route.query.isAddPanel){
               this.removeFunc(this.$route.query)
-              if (this.matchingPattern === 'over') {
-                this.setFunc({
-                  id:this.$route.query.id,
-                  name:this.processFlowName
-                })
-              } else {
-                this.setRegexFunc({
-                  id:this.$route.query.id,
-                  name:this.processFlowName,
-                  matchMode:this.regexStr
-                })
-              }
-
+              this.setFunc({
+                id:this.$route.query.id,
+                name:this.processFlowName
+              })
             }
             this.$message({
               message: '编辑流程成功',
@@ -513,9 +462,9 @@
       testCode(testCode){
         console.log(testCode);
         this.testErrMsg = ''
+        const result = new Function('middleStr', testCode);
         try {
-          const result = new Function('middleStr', testCode);
-          result('{"author":"johu"}')
+          result('test')
           return true
         } catch (e) {
           this.testErrMsg = e.toString()
@@ -533,9 +482,9 @@
             code += 'return middleStr;'
           }
         })
-        // console.log(code);
+        console.log(code);
+        const result = new Function('middleStr', code);
         try{
-          const result = new Function('middleStr', code);
           this.outputStr = (result(this.originalStr));
           this.dealSuccess = true
         }catch(e){
